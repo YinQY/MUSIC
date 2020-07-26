@@ -8,10 +8,27 @@ app.use(cors({
     methods:['GET','POST']
 }));
 
-app.get('/test',(req,res)=>{
-    console.log('correct!');
+
+
+
+
+/**error handler */
+app.use((err,req,res,next)=>{
+    if(err){
+        let {message} = err;
+        res.status(500).json({
+            message
+        });
+    }
+});
+/**404 not found handler*/
+app.use((req,res,next)=>{
+    res.json({
+        message:'not found'
+    });
 });
 
+/**listening */
 app.listen(8085,'0.0.0.0',()=>{
     console.log("server run successfully!" + new Date());
 });

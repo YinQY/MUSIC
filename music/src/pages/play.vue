@@ -11,7 +11,7 @@ export default {
         }
     },
     mounted() {
-            this.axios.get(`${CONSTANTS.SERVER_HOST}test`);
+            
     },
 }
 </script>
