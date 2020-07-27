@@ -10,7 +10,11 @@ app.use(cors({
 
 
 
-
+app.get('/test',(req,res)=>{
+    res.json({
+        message:"yes"
+    });
+})
 
 /**error handler */
 app.use((err,req,res,next)=>{
