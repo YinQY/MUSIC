@@ -1,16 +1,29 @@
 <template>
-    <div :class="['music-box',isControlMinify ? 'sm' : 'bg']" @click="maxMusicControl">
+<transition :name="isControlMinify ? '' : 'music-ani'">
+    <div :class="['music-box',isControlMinify ? 'sm' : 'bg']" :key="isControlMinify ? 'sm' : 'bg'" @click="maxMusicControl">
         <div class="header-box">
-            <div class="music-header"></div>
-            <div class="music-title">未在播放</div>
+            <transition :name="isControlMinify ? '' : 'music-header-ani'">
+                <div :class="['music-header',isControlMinify ? 'sm' : 'bg']" :key="isControlMinify ? 'sm-header' : 'bg-header'"></div>
+            </transition>
+            <div class="music-detail">
+                <div class="music-title">未在播放</div>
+                <div class="music-singer" v-if="!isControlMinify">作者</div>
+            </div>
         </div>
+        
         <ul class="control-box">
+            <li class="progress-bar" v-if="!isControlMinify"></li>
             <li class="control-item control-item-pre"></li>
-            <li class="control-item control-item-play" v-if="!isPlay" @click="changeMusicPlay($event)"></li>
-            <li class="control-item control-item-pause" v-if="isPlay" @click="changeMusicPlay($event)"></li>
+            <div class="control-play-box">
+                <transition name="control-play">
+                    <li class="control-item control-item-play" v-if="!isPlay" @click.stop="changeMusicPlay" key="control-item-play"></li>
+                    <li class="control-item control-item-pause" v-if="isPlay" @click.stop="changeMusicPlay" key="control-item-pause"></li>
+                </transition>
+            </div>
             <li class="control-item control-item-next"></li>
         </ul>
     </div>
+</transition>
 </template>
 
 <script>
@@ -25,7 +38,6 @@ export default {
     data() {
         return {
             isPlay:false,
-            
         }
     },
     methods:{
@@ -34,13 +46,8 @@ export default {
             this.$emit('maxMusicControl');
         },
         //改变音乐播放还是暂停
-        changeMusicPlay(e){
-            this.isPlay = !this.isPlay;   
-            if(e){
-                e.stopPropagation();//非IE浏览器
-            }else{
-                window.event.cancelBubble = true;//IE浏览器
-            }
+        changeMusicPlay(){
+            this.isPlay = !this.isPlay;
         }
     }
 
@@ -51,14 +58,45 @@ export default {
     .music-box{
         display flex
         position fixed
+        left 0
+        right 0
         z-index 1001
+        background-color rgba(230,230,230,.8)
+        overflow hidden
+        
+        &:before{
+            content ''
+            position absolute
+            top 0
+            right 0
+            bottom 0
+            left 0
+            background-position center
+            background-size 500%
+            background-repeat no-repeat
+            background-attachment fixed
+            filter  blur(20px)
+            margin -30px
+            z-index -1
+        }
 
         .music-header{
+            transform-origin 0 100%
+
+            &:before{
+                content:''
+            height 100%
+            display block
             background-image url('../assets/images/default-music-header.svg')
+            }
+
         }
-        .music-title{
+        
+        .music-detail{
+            max-width 100px
             overflow hidden
             white-space nowrap
+
         }
 
         .header-box{
@@ -66,12 +104,21 @@ export default {
         }
 
         .control-box{
-            list-style none
             display flex
+            padding 0
+            margin 0
+            list-style none
+
+            .control-play-box{
+                width 35px
+                height 35px
+                overflow hidden
+            }
 
             .control-item{
-                width 30px
-                height 30px
+                width 35px
+                height 35px
+                border-radius 50px
                 background-repeat no-repeat
                 background-position center
                 background-size 100%
@@ -95,14 +142,11 @@ export default {
     .music-box.sm{
         align-items center
         justify-content space-between
-        left 0
-        right 0
         bottom 46px
         height 60px
         margin 0
         padding 3px 10px
         box-sizing border-box
-        background-color #F7F7F7
         
         .header-box{
             align-items center
@@ -110,45 +154,113 @@ export default {
             .music-header{
                 width 39px
                 height 39px
-                margin-right 5px;
+                margin-right 5px
                 border-radius 5px
                 box-shadow 0 2px 5px rgba(0,0,0,.2)
-                background-repeat no-repeat
-                background-position center
-                background-size 100%
-            }
 
-            .music-title{
-                max-width 100px
+                &:before{
+                    background-repeat no-repeat
+                    background-position center
+                    background-size auto 100%
+                }
             }
-
         }
     }
 
     .music-box.bg{
         flex-direction column
-        left 0
         top 0
         bottom 0
-        right 0
+
+        &:before{
+            //background-image:url('../assets/images/test.jpg');
+        }
 
         .header-box{
+            flex-wrap wrap
             align-items center
             width 100%
+            flex-basis 80%
+            
 
             .music-header{
-                width 30%
-                max-width 300px
-                background-repeat no-repeat
-                background-position center
-                background-size 100%
+                flex-basis 100%
+                height 60%
+                max-height 250px
+                background-color red
 
                 &:before{
-                    content ''
-                    padding-top 100%
-                    display block
+                    background-repeat no-repeat
+                    background-position center
+                    background-size auto 100%
                 }
             }
+
+            .music-detail{
+                flex-basis 100%
+                align-self flex-end
+            }
+        }
+
+        .control-box{
+            width 100%
+            min-height 80px
+            padding 10px 0
+            flex-wrap wrap
+            justify-content space-around
+
+            .progress-bar{
+                flex-basis 100%
+                height 10px
+                background-color red
+            }
+
+            .control-play-box{
+                width 50px
+                height 50px
+            }
+
+            .control-item{
+                width 50px
+                height 50px 
+            }
+        }
+    }
+
+    /**transition */
+    .control-play-enter-active{
+        animation control-item-bounce .3s ease
+    }
+
+    @keyframes control-item-bounce {
+        0% {
+            transform scale(0.7)
+        }
+        100%{
+            transform scale(1)
+        }
+    }
+
+    .music-ani-enter{
+        transform translateY(calc(100% - 106px))
+    }
+
+    .music-ani-enter-active{
+        transition transform .2s ease-out
+    }
+
+    .music-header-ani-enter-to{
+        animation music-header-bounce 4s ease-out
+    }
+
+    @keyframes music-header-bounce {
+        0% {
+            opacity 0
+            transform scale(0)
+        }
+        100%{
+            opacity 1
+            transform scale(1)
         }
     }
 </style>

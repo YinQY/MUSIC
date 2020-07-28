@@ -9,6 +9,7 @@ export default {
 </script>
 <style lang="stylus">
   html,body{
+    -webkit-font-smoothing: antialiased
     font-family sans-serif
     margin 0
     padding 0
