@@ -1,10 +1,9 @@
 <template>
-<transition :name="isControlMinify ? '' : 'music-ani'">
-    <div :class="['music-box',isControlMinify ? 'sm' : 'bg']" :key="isControlMinify ? 'sm' : 'bg'" @click="maxMusicControl">
+<transition :name="isControlMinify ? 'music-min-ani' : 'music-max-ani'">
+    <div :class="['music-box',isControlMinify ? 'sm' : 'bg']" :key="isControlMinify ? 'sm' : 'bg'" @click="changeMusicControlSize" @touchstart="activeOrdinate = [$event.targetTouches[0].clientX,$event.targetTouches[0].clientY]" @touchmove.stop="slideMusicControl" @touchend="touchendMusicControl">
+        <div class="control-minify-botton" v-if="!isControlMinify"></div>
         <div class="header-box">
-            <transition :name="isControlMinify ? '' : 'music-header-ani'">
-                <div :class="['music-header',isControlMinify ? 'sm' : 'bg']" :key="isControlMinify ? 'sm-header' : 'bg-header'"></div>
-            </transition>
+                <div :class="['music-header',isControlMinify ? 'sm' : 'bg']"></div>
             <div class="music-detail">
                 <div class="music-title">未在播放</div>
                 <div class="music-singer" v-if="!isControlMinify">作者</div>
@@ -37,17 +36,43 @@ export default {
     },
     data() {
         return {
-            isPlay:false,
+            isPlay: false,
+            activeOrdinate: [0,0],
         }
     },
     methods:{
         //最大化音乐播放控制器的窗口
-        maxMusicControl(){
-            this.$emit('maxMusicControl');
+        changeMusicControlSize(e){
+            if(this.isControlMinify){
+                this.$emit('changeMusicControlSize');
+            }else{
+                if(e.target.className === 'control-minify-botton'){
+                    this.$emit('changeMusicControlSize');
+                }
+            }
         },
         //改变音乐播放还是暂停
         changeMusicPlay(){
             this.isPlay = !this.isPlay;
+        },
+        //滑动最大化的音乐控制窗口
+        slideMusicControl(e){
+            if(this.isControlMinify) return;
+            let offsetY = e.targetTouches[0].clientY - this.activeOrdinate[1];
+            e.currentTarget.style.top = (offsetY > 0 ? offsetY : 0) + 'px';
+            e.currentTarget.style.bottom = -(offsetY > 0 ? offsetY : 0) + 'px';
+        },
+        //结束滑动最大化的音乐控制窗口
+        touchendMusicControl(e){
+            if(this.isControlMinify) return;
+            let offsetY = parseInt(e.currentTarget.style.top.split('px')[0]);
+            if(offsetY >= window.screen.height / 3){
+                this.$emit('changeMusicControlSize');
+            }else{
+                e.currentTarget.style.top = 0;
+                e.currentTarget.style.bottom = 0;
+            }
+            //if()
         }
     }
 
@@ -85,9 +110,9 @@ export default {
 
             &:before{
                 content:''
-            height 100%
-            display block
-            background-image url('../assets/images/default-music-header.svg')
+                height 100%
+                display block
+                background-image url('../assets/images/default-music-header.svg')
             }
 
         }
@@ -176,6 +201,23 @@ export default {
             //background-image:url('../assets/images/test.jpg');
         }
 
+        .control-minify-botton{
+            position relative
+            width 100%
+            height 30px
+
+            &:before{
+                content ''
+                position absolute
+                left calc(50% - 30px)
+                top calc(50% - 5px)
+                width 60px
+                height 10px
+                border-radius 10px
+                background-color:rgba(200,200,200,.5)
+            }
+        }
+
         .header-box{
             flex-wrap wrap
             align-items center
@@ -187,7 +229,6 @@ export default {
                 flex-basis 100%
                 height 60%
                 max-height 250px
-                background-color red
 
                 &:before{
                     background-repeat no-repeat
@@ -231,7 +272,6 @@ export default {
     .control-play-enter-active{
         animation control-item-bounce .3s ease
     }
-
     @keyframes control-item-bounce {
         0% {
             transform scale(0.7)
@@ -241,26 +281,49 @@ export default {
         }
     }
 
-    .music-ani-enter{
+    .music-max-ani-enter{
         transform translateY(calc(100% - 106px))
     }
 
-    .music-ani-enter-active{
-        transition transform .2s ease-out
+    .music-max-ani-enter-active{
+        transition transform .3s ease-out
     }
 
-    .music-header-ani-enter-to{
-        animation music-header-bounce 4s ease-out
+    .music-max-ani-enter-active .music-header{
+        animation music-header-max-bounce .3s ease-out
     }
-
-    @keyframes music-header-bounce {
-        0% {
-            opacity 0
-            transform scale(0)
+    @keyframes music-header-max-bounce{
+        0%{
+            transform scale(0.3)
         }
         100%{
-            opacity 1
             transform scale(1)
         }
     }
+
+    .music-min-ani-enter-active{
+        animation music-min-bounce .3s ease-out
+    }
+    @keyframes music-min-bounce {
+        0% {
+            height 100px
+        }
+        100%{
+            height 60px
+        }
+    }
+
+    .music-min-ani-enter-active .music-header{
+        animation music-header-min-bounce .3s ease-out
+    }
+    @keyframes music-header-min-bounce {
+        0%{
+            transform scale(1.5)
+        }
+        100%{
+            transform scale(1)
+        }
+    }
+
+
 </style>
