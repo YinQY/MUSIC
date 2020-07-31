@@ -70,7 +70,6 @@ export default {
             }
         }
     }
-    //测试
 
     /**transition */
     // .footer-bounce-enter{
