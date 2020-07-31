@@ -9,7 +9,7 @@ export default new Router({
         {
             name:'play',
             path:'/',
-            component:Play
+            component:Play,
         }
     ]
 })
